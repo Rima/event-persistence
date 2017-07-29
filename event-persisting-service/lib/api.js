@@ -1,0 +1,64 @@
+'use strict';
+
+var _message = require('./message');
+
+var _message2 = _interopRequireDefault(_message);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var express = require('express');
+
+var api = express.Router();
+
+api.post('/events', function (req, res) {
+
+  var msg = new _message2.default(req.body);
+  if (msg.content === null) {
+    res.status(422).send({ error: "message_type_unrecognized" });
+    return;
+  }
+  process.database.store(msg.content, function (err, result) {
+    if (err) {
+      res.status(500).send({ error: "internal_error" });
+      return;
+    }
+    res.status(201).json({ success: true });
+  });
+  //inform sockets
+  //process.sockets.tell()
+});
+
+api.get('/events', function (req, res) {
+  var type = req.query.type;
+  var serviceId = req.query.service_id;
+  var offset = req.query.page || 1;
+  var sortKey = req.query.sort_by || 'ts';
+
+  process.database.getByTypeAndServiceId(type, serviceId, sortKey, offset, function (err, results) {
+    if (err) {
+      res.status(500).send({ error: "internal_error" });
+      return;
+    }
+    res.send(results);
+  });
+});
+
+api.delete('/events/:id', function (req, res) {
+  var docId = req.params.id;
+
+  process.database.deleteWithDocID(docId, function (err, results) {
+    if (err) {
+      if (err.code == 404) {
+        res.status(404).send({ error: "does_not_exist" });
+        return;
+      }
+      res.status(500).send({ error: "internal_error" });
+      return;
+    }
+    res.status(204).json({ success: true });
+    //inform sockets
+    //process.sockets.tell()
+  });
+});
+
+module.exports = api;

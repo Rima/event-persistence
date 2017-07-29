@@ -1,0 +1,5 @@
+export PORT=5001
+export TEMPLATES_LOC=$HOME/
+export COUCHBASE_HOST=http://rima-thinkpad-x1-carbon-4th:8091
+export COUCHBASE_BUCKET_NAME=default
+export LOG_LEVEL=debug

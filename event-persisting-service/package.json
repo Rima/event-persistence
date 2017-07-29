@@ -1,0 +1,22 @@
+{
+  "name": "event-persisting-service",
+  "version": "1.0.0",
+  "description": "an events backup and management service",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "couchbase": "^2.3.5",
+    "express": "^4.15.3",
+    "log": "^1.4.0",
+    "uuid": "^3.1.0"
+  },
+  "author": "Rima Al-Sheikh",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0"
+  }
+}
