@@ -14,16 +14,18 @@ api.post('/events', (req, res) => {
       res.status(500).send({error: "internal_error"})
       return;
     }
+    let content = msg.content;
+    content['id'] = result['id'];
+    process.socketshandle.emit('event_new', content);
     res.status(201).json({success: true})
   });
-  //inform sockets
-  //process.sockets.tell()
+
 });
 
 api.get('/events', (req, res) => {
   let type = req.query.type;
   let serviceId = req.query.service_id;
-  let limit = req.query.limit || 50;
+  let limit = req.query.limit || 1;
   let page = (req.query.page || 1);
   let sortKey = req.query.sort_by || 'ts';
 
@@ -51,9 +53,8 @@ api.delete('/events/:id', (req, res) => {
       res.status(500).send({error: "internal_error"})
       return;
     }
+    process.socketshandle.emit('event_deleted', docId);
     res.status(204).json({success: true})
-    //inform sockets
-    //process.sockets.tell()
   });
 
 });

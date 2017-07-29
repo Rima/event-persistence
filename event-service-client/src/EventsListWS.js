@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import io from 'socket.io-client'
+
+const socket = io(`http://localhost:5001`)
 
 class Event extends Component {
 
@@ -13,10 +16,9 @@ class Event extends Component {
     })
     .then(response => {
       if (!response.ok) {
-        this.props.listDelete('cannot_delete', null);
+        this.props.listMessenger('could not delete event');
         return;
       }
-      this.props.listDelete(this.props.content, null, true);
       return;
     });
 
@@ -50,18 +52,24 @@ class EventsList extends Component {
     };
   }
 
-  handleDelete(item, err, success){
-    if (err){
-      this.setState({message: "could not delete event"});
+  messenger(msg){
+    this.setState({message: msg});
+  }
+  handleNew(content){
+    this.state.events.splice(0, 0, content);
+    this.messenger("got a new event.. ");
+  }
+
+  handleDelete(eventId){
+    //TODO can implement broadcast   socket.broadcast.emit('broadcast', 'hello friends!');
+    //that way we can defrentiate locally deleted messages from msgs deleted by other clients.
+    let newState = this.state.events;
+    let deleted_obj_index = newState.findIndex( (item) => { return item.id == eventId })
+    if (deleted_obj_index > -1) {
+      newState.splice(deleted_obj_index, 1);
+      this.setState({events: newState})
     }
-    if (success){
-      let newState = this.state.events;
-      if (newState.indexOf(item) > -1) {
-        newState.splice(newState.indexOf(item), 1);
-        this.setState({events: newState})
-      }
-      this.setState({message: "successfuly deleted"})
-    }
+    this.messenger(`event ${eventId} removed.. `);
   }
 
   loadEvents(t, e, page){
@@ -71,7 +79,8 @@ class EventsList extends Component {
     fetch(`http://localhost:5001/api/events?page=${page}`)
       .then(response => {
         if (!response.ok) {
-          this.setState({message: "Network request failed"})
+          this.messenger("Network request failed")
+          this.requestFailed = true;
           return;
         }
         return response;
@@ -81,7 +90,7 @@ class EventsList extends Component {
         //if we have too many events, remove the head events
         if (!d.length){
           this.setState({pausePagination : true})
-          this.setState({message: "no more events to load .. "});
+          this.messenger("no more events to load .. ");
           return;
         }
         if (this.state.events.length >= 100){
@@ -91,13 +100,18 @@ class EventsList extends Component {
         this.pageOffset += 1;
       }, (err) => {
         this.setState({ requestFailed: true })
-        this.setState({ message: "couldn't load more events.." })
+        this.messenger("couldn't load more events.." )
       })
   }
 
-
+  _initialize(){
+    if (!this._initilized) this.loadEvents(null, null, 1);
+    this._initilized = true;
+  }
   componentDidMount() {
-    this.loadEvents(null, null, 1);
+    socket.on('connect', this._initialize.bind(this));
+    socket.on('event_deleted', this.handleDelete.bind(this));
+    socket.on('event_new', this.handleNew.bind(this));
   }
 
   render(){
@@ -119,7 +133,7 @@ class EventsList extends Component {
             </thead>
              <tfoot>
         {this.state.events.map((item, i) => (
-          <Event content={item} key={i} listDelete={this.handleDelete.bind(this)} />
+          <Event content={item} key={i} listMessenger={this.messenger.bind(this)} />
         ))}
       </tfoot>
         </table>

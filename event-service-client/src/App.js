@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 
-import EventsList from './EventsListHttp';
+import EventsList from './EventsListWS';
 
 class App extends Component {
 

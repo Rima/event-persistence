@@ -58,7 +58,7 @@ var Database = function () {
           callback(error, null);
           return;
         }
-        callback(null, { message: "success", data: result });
+        callback(null, { id: documentId, data: result });
       });
     }
   }, {

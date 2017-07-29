@@ -22,10 +22,11 @@ api.post('/events', function (req, res) {
       res.status(500).send({ error: "internal_error" });
       return;
     }
+    var content = msg.content;
+    content['id'] = result['id'];
+    process.socketshandle.emit('event_new', content);
     res.status(201).json({ success: true });
   });
-  //inform sockets
-  //process.sockets.tell()
 });
 
 api.get('/events', function (req, res) {
@@ -58,9 +59,8 @@ api.delete('/events/:id', function (req, res) {
       res.status(500).send({ error: "internal_error" });
       return;
     }
+    process.socketshandle.emit('event_deleted', docId);
     res.status(204).json({ success: true });
-    //inform sockets
-    //process.sockets.tell()
   });
 });
 

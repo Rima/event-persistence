@@ -4,7 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const api = require('./api')
 const db = require('./db')
-
+const ws = require('socket.io');
 
 /*
 This class simply allows us to contain the server and makes it easier
@@ -40,7 +40,7 @@ class Server{
       res.setHeader ('X-Served-By', `service/${this.serviceName}`)
       res.setHeader ("Access-Control-Allow-Origin", "*");
       res.setHeader ("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-      res.setHeader ("Access-Control-Allow-Methods", "POST, GET, DELETE")
+      res.setHeader ("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS")
       next()
     });
 
@@ -48,7 +48,7 @@ class Server{
 
     app.use('/api', api)
 
-    app.listen(this.port, this.bindAdress, () => {
+    let server = app.listen(this.port, this.bindAdress, () => {
       process.logger.info(`server is up on ${this.bindAdress}:${this.port}`);
     })
 
@@ -57,9 +57,16 @@ class Server{
     //app.locals.strftime = require('strftime');
 
     this.app = app
+    this.server = server
   }
 
   setupSockets(){
+    let io = ws(this.server, { origins: '*:*'});
+
+    io.on('connection', (socket) => {
+      socket.emit('init', { hello: 'world' });
+    });
+    process.socketshandle = io;
     process.logger.info("sockets are up");
   }
 

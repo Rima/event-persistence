@@ -10,6 +10,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var api = require('./api');
 var db = require('./db');
+var ws = require('socket.io');
 
 /*
 This class simply allows us to contain the server and makes it easier
@@ -50,7 +51,7 @@ var Server = function () {
         res.setHeader('X-Served-By', 'service/' + _this.serviceName);
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        res.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE");
+        res.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
         next();
       });
 
@@ -58,7 +59,7 @@ var Server = function () {
 
       app.use('/api', api);
 
-      app.listen(this.port, this.bindAdress, function () {
+      var server = app.listen(this.port, this.bindAdress, function () {
         process.logger.info('server is up on ' + _this.bindAdress + ':' + _this.port);
       });
 
@@ -67,10 +68,17 @@ var Server = function () {
       //app.locals.strftime = require('strftime');
 
       this.app = app;
+      this.server = server;
     }
   }, {
     key: 'setupSockets',
     value: function setupSockets() {
+      var io = ws(this.server, { origins: '*:*' });
+
+      io.on('connection', function (socket) {
+        socket.emit('init', { hello: 'world' });
+      });
+      process.socketshandle = io;
       process.logger.info("sockets are up");
     }
   }, {
