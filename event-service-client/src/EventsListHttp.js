@@ -42,7 +42,7 @@ class EventsList extends Component {
 
   constructor() {
     super();
-    this.pageOffset = 0;
+    this.pageOffset = 1;
 
     this.state = {
       requestFailed: false,
@@ -65,17 +65,16 @@ class EventsList extends Component {
     }
   }
 
-  loadEvents(page){
+  loadEvents(t, e, page){
     //TODO move url to configuration
-    if(!page) page = this.pageOffset + 1;
-    console.log(page);
-
+    if(!page) page = this.pageOffset;
     fetch(`http://localhost:5001/api/events?page=${page}`)
       .then(response => {
         if (!response.ok) {
           this.setState({message: "Network request failed"})
           return;
         }
+        return response;
       })
       .then(d => d.json())
       .then(d => {
@@ -87,15 +86,16 @@ class EventsList extends Component {
         if (this.state.events.length >= 100){
           this.state.events.splice(0, 50);
         }
-        this.state.events.concat(d);
-      }, () => {
+        this.setState({ events: this.state.events.concat(d) });
+        this.pageOffset += 1;
+      }, (err) => {
         this.setState({ requestFailed: true })
         this.setState({ message: "couldn't load more events.." })
       })
   }
 
   componentDidMount() {
-    this.loadEvents(1)
+    this.loadEvents(null, null, 1);
   }
 
   render(){
@@ -121,6 +121,8 @@ class EventsList extends Component {
         ))}
       </tfoot>
         </table>
+
+        <button onClick={this.loadEvents.bind(this)}> Load more </button>
       </div>
 
     )
@@ -128,5 +130,3 @@ class EventsList extends Component {
 }
 
 export default EventsList;
-
-/*<button onClick={this.loadEvents()}> Load more </button>*/

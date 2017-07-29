@@ -83,7 +83,8 @@ var Database = function () {
       var serviceId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var sortKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var offset = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-      var callback = arguments[4];
+      var limit = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 50;
+      var callback = arguments[5];
 
 
       //helper func, could be abstracted if needed later.
@@ -101,7 +102,7 @@ var Database = function () {
       }
 
       process.logger.debug(queryString + (' LIMIT 50 OFFSET ' + offset + ';'));
-      var q = _couchbase2.default.N1qlQuery.fromString(queryString + (' LIMIT 10 OFFSET ' + offset + ';'));
+      var q = _couchbase2.default.N1qlQuery.fromString(queryString + (' LIMIT ' + limit + ' OFFSET ' + offset + ';'));
       this.connection.query(q, callback);
     }
   }]);

@@ -59,7 +59,7 @@ class Database {
     });
   }
 
-  getByTypeAndServiceId(type = null, serviceId = null, sortKey = null, offset = 0, callback){
+  getByTypeAndServiceId(type = null, serviceId = null, sortKey = null, offset = 0, limit=50, callback){
 
       //helper func, could be abstracted if needed later.
       const orEmpty = ( entity ) => {
@@ -76,7 +76,7 @@ class Database {
       }
 
       process.logger.debug(queryString  + ` LIMIT 50 OFFSET ${offset};`);
-      let q = couchbase.N1qlQuery.fromString(queryString  + ` LIMIT 10 OFFSET ${offset};`);
+      let q = couchbase.N1qlQuery.fromString(queryString  + ` LIMIT ${limit} OFFSET ${offset};`);
       this.connection.query(q, callback);
   }
 

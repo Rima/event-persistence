@@ -31,10 +31,13 @@ api.post('/events', function (req, res) {
 api.get('/events', function (req, res) {
   var type = req.query.type;
   var serviceId = req.query.service_id;
-  var offset = req.query.page || 1;
+  var limit = req.query.limit || 1;
+  var page = req.query.page || 1;
   var sortKey = req.query.sort_by || 'ts';
 
-  process.database.getByTypeAndServiceId(type, serviceId, sortKey, offset, function (err, results) {
+  var offset = limit * (page - 1);
+
+  process.database.getByTypeAndServiceId(type, serviceId, sortKey, offset, limit, function (err, results) {
     if (err) {
       res.status(500).send({ error: "internal_error" });
       return;

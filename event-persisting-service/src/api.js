@@ -23,10 +23,13 @@ api.post('/events', (req, res) => {
 api.get('/events', (req, res) => {
   let type = req.query.type;
   let serviceId = req.query.service_id;
-  let offset = req.query.page || 1;
+  let limit = req.query.limit || 50;
+  let page = (req.query.page || 1);
   let sortKey = req.query.sort_by || 'ts';
 
-  process.database.getByTypeAndServiceId( type, serviceId, sortKey, offset, (err, results) => {
+  let offset = limit * (page-1);
+
+  process.database.getByTypeAndServiceId( type, serviceId, sortKey, offset, limit, (err, results) => {
     if (err){
       res.status(500).send({error: "internal_error"})
       return;
