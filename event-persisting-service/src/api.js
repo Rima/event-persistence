@@ -28,10 +28,11 @@ api.get('/events', (req, res) => {
   let limit = req.query.limit || 1;
   let page = (req.query.page || 1);
   let sortKey = req.query.sort_by || 'ts';
+  let order = req.query.order || 'DESC';
 
   let offset = limit * (page-1);
 
-  process.database.getByTypeAndServiceId( type, serviceId, sortKey, offset, limit, (err, results) => {
+  process.database.getByTypeAndServiceId( type, serviceId, sortKey, order, offset, limit, (err, results) => {
     if (err){
       res.status(500).send({error: "internal_error"})
       return;

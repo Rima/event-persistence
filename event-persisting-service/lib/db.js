@@ -82,9 +82,10 @@ var Database = function () {
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var serviceId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var sortKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var offset = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-      var limit = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 50;
-      var callback = arguments[5];
+      var order = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'DESC';
+      var offset = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+      var limit = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 50;
+      var callback = arguments[6];
 
 
       //helper func, could be abstracted if needed later.
@@ -92,7 +93,8 @@ var Database = function () {
         return entity || "";
       };
 
-      var queryString = 'SELECT  META(' + this.bucketName + ').id, type, serviceId, data FROM ' + this.bucketName;
+      sortKey = sortKey || 'ts';
+      var queryString = 'SELECT  META(' + this.bucketName + ').id, type, serviceId, data, ts FROM ' + this.bucketName;
 
       if (type && serviceId) {
         queryString += ' WHERE type = "' + type + '" AND serviceId = "' + serviceId + '"';
@@ -101,8 +103,8 @@ var Database = function () {
         queryString += orEmpty(serviceId && ' WHERE serviceId = "' + serviceId + '"');
       }
 
-      process.logger.debug(queryString + (' LIMIT 50 OFFSET ' + offset + ';'));
-      var q = _couchbase2.default.N1qlQuery.fromString(queryString + (' LIMIT ' + limit + ' OFFSET ' + offset + ';'));
+      process.logger.debug(queryString + (' ORDER BY ' + sortKey + ' ' + order + ' LIMIT 50 OFFSET ' + offset + ' ;'));
+      var q = _couchbase2.default.N1qlQuery.fromString(queryString + ('  ORDER BY ' + sortKey + ' ' + order + '\n                  LIMIT ' + limit + ' OFFSET ' + offset + ';'));
       this.connection.query(q, callback);
     }
   }]);

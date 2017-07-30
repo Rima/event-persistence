@@ -51,7 +51,8 @@ class Database {
     this.connection.remove(docId, (error, result) => {
         if(error) {
             process.logger.error(`could not delete with ID ${docId}, ${error}`);
-            if (error.code == 13){ error.code = 404 } //does not exist
+            //does not exist - change to a known error code not to expose CB's laundry
+            if (error.code == 13){ error.code = 404 }
             callback(error, null);
             return;
         }
@@ -59,14 +60,15 @@ class Database {
     });
   }
 
-  getByTypeAndServiceId(type = null, serviceId = null, sortKey = null, offset = 0, limit=50, callback){
+  getByTypeAndServiceId(type = null, serviceId = null, sortKey = null, order = 'DESC', offset = 0, limit=50, callback){
 
       //helper func, could be abstracted if needed later.
       const orEmpty = ( entity ) => {
           return entity || "";
       };
 
-      let queryString = `SELECT  META(${this.bucketName}).id, type, serviceId, data FROM ${this.bucketName}`;
+      sortKey = sortKey || 'ts';
+      let queryString = `SELECT  META(${this.bucketName}).id, type, serviceId, data, ts FROM ${this.bucketName}`;
 
       if(type && serviceId){
         queryString += ` WHERE type = "${type}" AND serviceId = "${serviceId}"`;
@@ -75,8 +77,9 @@ class Database {
         queryString += orEmpty(serviceId && ` WHERE serviceId = "${serviceId}"`);
       }
 
-      process.logger.debug(queryString  + ` LIMIT 50 OFFSET ${offset};`);
-      let q = couchbase.N1qlQuery.fromString(queryString  + ` LIMIT ${limit} OFFSET ${offset};`);
+      process.logger.debug(queryString  + ` ORDER BY ${sortKey} ${order} LIMIT 50 OFFSET ${offset} ;`);
+      let q = couchbase.N1qlQuery.fromString(queryString  + `  ORDER BY ${sortKey} ${order}
+                  LIMIT ${limit} OFFSET ${offset};`);
       this.connection.query(q, callback);
   }
 

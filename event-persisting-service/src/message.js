@@ -18,11 +18,12 @@ class Message{
       return
     }
 
-    //strict msg type and TODO add a ts to the message 
+    //strict msg type & add ts
     this.content = {
       type : message.type,
       serviceId : message.serviceId,
-      data : message.data
+      data : message.data,
+      ts : Date.now()
     }
   }
 

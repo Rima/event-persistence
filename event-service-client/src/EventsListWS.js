@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import io from 'socket.io-client'
 
-const socket = io(`http://localhost:5001`)
+
+const socket = io('http://localhost:5001')
 
 class Event extends Component {
 
@@ -43,7 +44,7 @@ class EventsList extends Component {
 
   constructor() {
     super();
-    this.pageOffset = 1;
+    this.pageNum = 1;
 
     this.state = {
       requestFailed: false,
@@ -64,7 +65,7 @@ class EventsList extends Component {
     //TODO can implement broadcast   socket.broadcast.emit('broadcast', 'hello friends!');
     //that way we can defrentiate locally deleted messages from msgs deleted by other clients.
     let newState = this.state.events;
-    let deleted_obj_index = newState.findIndex( (item) => { return item.id == eventId })
+    let deleted_obj_index = newState.findIndex( (item) => { return item.id === eventId })
     if (deleted_obj_index > -1) {
       newState.splice(deleted_obj_index, 1);
       this.setState({events: newState})
@@ -75,7 +76,7 @@ class EventsList extends Component {
   loadEvents(t, e, page){
     //TODO move url to configuration
     if (this.state.pausePagination) return;
-    if(!page) page = this.pageOffset;
+    if(!page) page = this.pageNum;
     fetch(`http://localhost:5001/api/events?page=${page}`)
       .then(response => {
         if (!response.ok) {
@@ -87,17 +88,17 @@ class EventsList extends Component {
       })
       .then(d => d.json())
       .then(d => {
-        //if we have too many events, remove the head events
         if (!d.length){
           this.setState({pausePagination : true})
           this.messenger("no more events to load .. ");
           return;
         }
+        //if we have too many events, remove the head events
         if (this.state.events.length >= 100){
           this.state.events.splice(0, 50);
         }
         this.setState({ events: this.state.events.concat(d) });
-        this.pageOffset += 1;
+        this.pageNum += 1;
       }, (err) => {
         this.setState({ requestFailed: true })
         this.messenger("couldn't load more events.." )
