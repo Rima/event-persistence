@@ -31,10 +31,10 @@ api.post('/events', function (req, res) {
 
 api.get('/events', function (req, res) {
   var type = req.query.type;
-  var serviceId = req.query.service_id;
-  var limit = req.query.limit || 1;
+  var serviceId = req.query.serviceId;
+  var limit = req.query.limit || 2;
   var page = req.query.page || 1;
-  var sortKey = req.query.sort_by || 'ts';
+  var sortKey = req.query.sortBy || 'ts';
   var order = req.query.order || 'DESC';
 
   var offset = limit * (page - 1);

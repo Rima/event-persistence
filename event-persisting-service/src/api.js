@@ -24,10 +24,10 @@ api.post('/events', (req, res) => {
 
 api.get('/events', (req, res) => {
   let type = req.query.type;
-  let serviceId = req.query.service_id;
-  let limit = req.query.limit || 1;
+  let serviceId = req.query.serviceId;
+  let limit = req.query.limit || 2;
   let page = (req.query.page || 1);
-  let sortKey = req.query.sort_by || 'ts';
+  let sortKey = req.query.sortBy || 'ts';
   let order = req.query.order || 'DESC';
 
   let offset = limit * (page-1);
