@@ -1,10 +1,13 @@
 
 ## How to run
 ### installing couchbase
-In order to run this app you need a Couchbase server running, see Couchbase.org for installing a CB server.
+In order to run this app you need a Couchbase server running, download and unpack couchbase from couchbase.com
+
 Make sure during setup/configuration to tick `Indexing` and `Querying`
+
 Couchbase is ports hungry, make sure you have available ports to run it and all its depandant services
 https://developer.couchbase.com/documentation/server/3.x/admin/Install/install-networkPorts.html
+
 you can check what occupied ports you have by running
 `sudo lsof -i -P -n | grep LISTEN`
 
@@ -19,14 +22,17 @@ then `source localenv`
 then run the app in your terminal through the bin file
 `./bin/run`
 
+Having the bin file allows for additional configurations. Right now it just runs the server.
+
 ### Logging
 If you don't define a logLevel the logLevel is set to default 'info'
 If you don't define a logFile the app will log in the terminal, otherwise it'll stream logs to your logFile
 
+Accepted log levels: debug, info and error.
 
 ## Stack
 
-### Database
+### Why Couchbase
 This uses Couchbase as a persistant storage as it's assumed this service requires high throughput
 Couchbase offers robust writes/sec performance
 
@@ -40,7 +46,7 @@ We'll use sockets.io for the purpose of this exercise, as sockets 2.0 integrates
 which solves a lot of the performance problems.
 
 We could probably live with engine.io on its own for this service, as we don't really need rooms and all the fancy stuff
-socket.io adds or even we could even just use straight up WS. But this decision is better made in context.
+socket.io adds or even we could just use straight up WS.
 
 https://github.com/socketio/engine.io
 
@@ -84,3 +90,16 @@ in your terminal
 
 or a particular file
 `$(npm bin)/babel src/{{filename}} --out-file lib/{{filename}}`
+
+## Pagination and Querying
+under `src/api.js:get` you'll see the parameters accepted and implemented for querying the service over `GET`.
+by default number of entries per page is set to 2.
+
+## General design notes
+Assuming this service purpose is to provide an event sourcing mechanism where it acts as both message broker and
+message store, as a fail safe mechanism for services.
+ie if A service goes offline for x time, when it comes back up it can recover any messages it missed out -
+or even as a system state replay mechanism - ie reconstruct objects from an event trail.
+
+It's common to use Kafka https://kafka.apache.org/ for this purpose because it acts as both message broker and persistant storage.
+but since the message broker is out of our scope here - it made sense to use something like Couchbase.
