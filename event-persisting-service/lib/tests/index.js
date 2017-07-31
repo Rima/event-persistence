@@ -64,7 +64,6 @@ describe('Events', function () {
       'force new connection': true
     };
     var client = io.connect(server.address, options);
-    var got_event = true;
 
     chai.request(server.server).get('/api/events').end(function (err, res) {
       var eventId = res.body[0].id;
@@ -75,7 +74,7 @@ describe('Events', function () {
         done();
       });
       chai.request(server.server).delete('/api/events/' + eventId).end(function (error, response) {
-        response.should.have.status(204);
+        response.should.have.status(202);
       });
     });
   });

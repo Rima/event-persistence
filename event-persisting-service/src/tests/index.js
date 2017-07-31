@@ -60,7 +60,6 @@ describe('Events', () => {
           'force new connection': true
         };
     let client = io.connect(server.address, options);
-    let got_event = true;
 
     chai.request(server.server)
       .get('/api/events')
@@ -75,7 +74,7 @@ describe('Events', () => {
         chai.request(server.server)
           .delete('/api/events/'+eventId)
           .end((error, response) => {
-            response.should.have.status(204);
+            response.should.have.status(202);
         });
       });
   });

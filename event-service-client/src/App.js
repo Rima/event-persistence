@@ -28,7 +28,7 @@ class App extends Component {
     let fval = e.target.value;
     let fname = e.target.name;
     let filter = {}; filter[fname] = fval;
-    
+
     this.em.assignFilter(filter, (err, succ, l) => {
       if(succ){
         if(!l) this.messenger('no events matching query ..')
@@ -84,8 +84,6 @@ class App extends Component {
       }
       if(!l){
         this.messenger("no more events to load ...");
-        this.setState({pausePagination: this.em.listConfig.pausePagination})
-        return;
       }
       this.updateList();
       return;
@@ -94,7 +92,7 @@ class App extends Component {
 
 
   updateList(){
-    this.setState({events: this.em.events, listConfig: this.em.listConfig});
+    this.setState({events: this.em.events, pausePagination: this.em.listConfig.pausePagination});
   }
   messenger(msg){
     this.setState({message: msg});

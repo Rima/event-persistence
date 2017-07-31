@@ -17,7 +17,7 @@ api.post('/events', (req, res) => {
     let content = msg.content;
     content['id'] = result['id'];
     process.socketshandle.emit('event_new', content);
-    res.status(201).json({success: true})
+    res.status(201).send({success: content})
   });
 
 });
@@ -55,7 +55,7 @@ api.delete('/events/:id', (req, res) => {
       return;
     }
     process.socketshandle.emit('event_deleted', docId);
-    res.status(204).json({success: true})
+    res.status(202).send({success: true})
   });
 
 });
