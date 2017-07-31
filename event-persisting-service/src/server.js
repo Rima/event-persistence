@@ -48,13 +48,14 @@ class Server{
 
     app.use('/api', api)
 
+    this.address = '';
     let server = app.listen(this.port, this.bindAdress, () => {
       process.logger.info(`server is up on ${this.bindAdress}:${this.port}`);
+      //TODO find the protocol from expressjs obj.
+      this.address = `http://${this.bindAdress}:${this.port}`;
     })
 
     app.locals.title = this.serviceName;
-    //time is probably relevant given this is an event service
-    //app.locals.strftime = require('strftime');
 
     this.app = app
     this.server = server

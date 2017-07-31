@@ -8,8 +8,9 @@ import uuid from 'uuid'
 class Database {
 
   constructor(){
+    this.testEnv = process.env.NODE_ENV === 'test';
     const host = process.env.COUCHBASE_HOST;
-    this.bucketName = process.env.COUCHBASE_BUCKET_NAME;
+    this.bucketName = this.testEnv ? process.env.COUCHBASE_BUCKET_NAME_TEST : process.env.COUCHBASE_BUCKET_NAME;
     this.connection = new couchbase.Cluster(this.host).openBucket(this.bucketName);
     this.setupIndexes();
 
@@ -81,6 +82,15 @@ class Database {
       let q = couchbase.N1qlQuery.fromString(queryString  + `  ORDER BY ${sortKey} ${order}
                   LIMIT ${limit} OFFSET ${offset};`);
       this.connection.query(q, callback);
+  }
+
+  /* this is only enabled in test environment */
+  flushDb(){
+    if (!this.testEnv){return null;}
+    let bucketMgr = this.connection.manager();
+    bucketMgr.flush((err, succ) => {
+      //do nothing
+    });
   }
 
 }

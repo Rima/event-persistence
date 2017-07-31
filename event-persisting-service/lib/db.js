@@ -20,8 +20,9 @@ var Database = function () {
   function Database() {
     _classCallCheck(this, Database);
 
+    this.testEnv = process.env.NODE_ENV === 'test';
     var host = process.env.COUCHBASE_HOST;
-    this.bucketName = process.env.COUCHBASE_BUCKET_NAME;
+    this.bucketName = this.testEnv ? process.env.COUCHBASE_BUCKET_NAME_TEST : process.env.COUCHBASE_BUCKET_NAME;
     this.connection = new _couchbase2.default.Cluster(this.host).openBucket(this.bucketName);
     this.setupIndexes();
 
@@ -67,9 +68,10 @@ var Database = function () {
       this.connection.remove(docId, function (error, result) {
         if (error) {
           process.logger.error('could not delete with ID ' + docId + ', ' + error);
+          //does not exist - change to a known error code not to expose CB's laundry
           if (error.code == 13) {
             error.code = 404;
-          } //does not exist
+          }
           callback(error, null);
           return;
         }
@@ -106,6 +108,20 @@ var Database = function () {
       process.logger.debug(queryString + (' ORDER BY ' + sortKey + ' ' + order + ' LIMIT 50 OFFSET ' + offset + ' ;'));
       var q = _couchbase2.default.N1qlQuery.fromString(queryString + ('  ORDER BY ' + sortKey + ' ' + order + '\n                  LIMIT ' + limit + ' OFFSET ' + offset + ';'));
       this.connection.query(q, callback);
+    }
+
+    /* this is only enabled in test environment */
+
+  }, {
+    key: 'flushDb',
+    value: function flushDb() {
+      if (!this.testEnv) {
+        return null;
+      }
+      var bucketMgr = this.connection.manager();
+      bucketMgr.flush(function (err, succ) {
+        //do nothing
+      });
     }
   }]);
 

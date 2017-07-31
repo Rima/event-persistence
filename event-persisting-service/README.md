@@ -3,7 +3,10 @@
 ### installing couchbase
 In order to run this app you need a Couchbase server running, download and unpack couchbase from couchbase.com
 
-Make sure during setup/configuration to tick `Indexing` and `Querying`
+During setup ensure:
+1.  tick `Indexing` and `Querying`
+2.  You setup enough RAM for the cluster for 2 buckets (test bucket and development bucket)
+3.  When setting up the test bucket ensure you enable `flush` command so we can empty the bucket when running tests.
 
 Couchbase is ports hungry, make sure you have available ports to run it and all its depandant services
 https://developer.couchbase.com/documentation/server/3.x/admin/Install/install-networkPorts.html
@@ -29,6 +32,18 @@ If you don't define a logLevel the logLevel is set to default 'info'
 If you don't define a logFile the app will log in the terminal, otherwise it'll stream logs to your logFile
 
 Accepted log levels: debug, info and error.
+
+### running tests
+To run test you need to have node `Mocha` installed. then you can run
+`mocha lib/tests/`
+
+When you run tests, `NODE_ENV` environment variable is switched to `test`
+
+Make sure you have the test bucket defined in the environment variable.
+In the code flushing a bucket is only enabled when working in test environment, as it's a dangerous operation to enable otherwise.
+You could also disable bucket flushing through the cluster manager (as per notes in the db setup).
+
+Currently there are only two test cases testing http GET, Delete and Sockets, this could improve to add a bunch more.
 
 ## Stack
 
