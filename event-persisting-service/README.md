@@ -1,10 +1,11 @@
 
 ## How to run
-### installing couchbase
+### Installing Couchbase
 In order to run this app you need a Couchbase server running, download and unpack couchbase from couchbase.com
 https://www.couchbase.com/downloads
 
 or with docker
+
 `docker pull couchbase/server`
 
 then
@@ -13,7 +14,7 @@ then
 
 then
 
-visit `http://localhost:809`
+visit `http://localhost:8091`
 
 
 During setup ensure:
@@ -28,7 +29,7 @@ you can check what occupied ports you have by running
 `sudo lsof -i -P -n | grep LISTEN`
 
 
-### setting up the app
+### Setting up the app
 Once your database is up, install the app dependencies with `npm install`
 
 In the `environment` file there's a list of `env` variables that need to be set to run this app
@@ -46,7 +47,7 @@ If you don't define a logFile the app will log in the terminal, otherwise it'll 
 
 Accepted log levels: debug, info and error.
 
-### running tests
+### Running tests
 To run test you need to have node `Mocha` installed. then you can run
 `mocha lib/tests/`
 
@@ -80,9 +81,10 @@ https://github.com/socketio/engine.io
 
 
 ## How can this code be improved
-Instead of doing hijacked type checking in the api routes, we could use a static type checker
+Instead of doing hijacked type checking in the api routes, we could use a type declaration and validation library, flow has a run-time library for type checking
+
 https://flow.org
-https://www.npmjs.com/package/flow-validator
+https://codemix.github.io/flow-runtime/#/
 
 We would create src/message.js and in it we would define our allowed message types:
 ```
@@ -97,7 +99,7 @@ type ShallowMessageType = {
   data: string
 };
 ```
-then we could validate it with the flow `.validate()` or run a switch loop based on the received content
+then we could validate it with the flow `.accept()` or run a switch loop based on the received content
 
 
 We could also use a schema and indexing library for Couchbase `ottoman ODM` seems to do the job
@@ -122,6 +124,12 @@ or a particular file
 ## Pagination and Querying
 under `src/api.js:get` you'll see the parameters accepted and implemented for querying the service over `GET`.
 by default number of entries per page is set to 2.
+
+This is designed to work in the `load More` fashion, check the client app
+to see the implementation. We could return instead total number of entries in a
+bucket but we'd want to cache that value, instead of querying the bucket full count
+everytime - also it's important to bear in mind that Couchbase querying is
+eventually consistent. 
 
 ## General design notes
 Assuming this service purpose is to provide an event sourcing mechanism where it acts as both message broker and
