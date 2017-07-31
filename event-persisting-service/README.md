@@ -2,6 +2,19 @@
 ## How to run
 ### installing couchbase
 In order to run this app you need a Couchbase server running, download and unpack couchbase from couchbase.com
+https://www.couchbase.com/downloads
+
+or with docker
+`docker pull couchbase/server`
+
+then
+
+`docker run -d --name db -p 8091-8094:8091-8094 -p 11210:11210 couchbase`
+
+then
+
+visit `http://localhost:809`
+
 
 During setup ensure:
 1.  tick `Indexing` and `Querying`
